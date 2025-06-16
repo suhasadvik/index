@@ -14,21 +14,15 @@
     }
 
     @keyframes slideFadeIn {
-      0% {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      0% { opacity: 0; transform: translateY(-30px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
 
     h1 {
       text-align: center;
       font-size: 36px;
       font-weight: bold;
-      color: #b71c1c; /* Opposite to green */
+      color: #b71c1c;
       margin-bottom: 20px;
       text-shadow: 1px 1px 2px gray;
       animation: slideFadeIn 1.2s ease-out;
@@ -57,13 +51,9 @@
     }
 
     .three-images-row img:first-child,
-    .three-images-row img:last-child {
-      width: 130px;
-    }
+    .three-images-row img:last-child { width: 130px; }
 
-    .three-images-row img:nth-child(2) {
-      width: 180px;
-    }
+    .three-images-row img:nth-child(2) { width: 180px; }
 
     label {
       font-weight: bold;
@@ -91,9 +81,7 @@
       cursor: pointer;
     }
 
-    button:hover {
-      background: #004d40;
-    }
+    button:hover { background: #004d40; }
 
     table {
       width: 100%;
@@ -133,9 +121,7 @@
       color: white;
     }
 
-    .update-mode {
-      background-color: #388e3c !important;
-    }
+    .update-mode { background-color: #388e3c !important; }
 
     button[onclick*="downloadExcel"] {
       margin-top: 15px;
@@ -187,6 +173,7 @@
           <option>Drama</option>
           <option>Shoe Stand & Racks</option>
           <option>Laundry Equipment</option>
+          <option>Sports Accessories</option>
           <option>R3</option>
           <option>IT Accessories</option>
         </optgroup>
@@ -225,12 +212,10 @@
     const form = document.getElementById("inventoryForm");
     const tableBody = document.querySelector("#inventoryTable tbody");
     const submitBtn = document.getElementById("submitBtn");
-
     let editRow = null;
 
     form.addEventListener("submit", function(e) {
       e.preventDefault();
-
       const name = document.getElementById("itemName").value;
       const category = document.getElementById("category").value;
       const quantity = document.getElementById("quantity").value;
@@ -254,7 +239,6 @@
 
     function addRow(name, category, quantity, location) {
       const row = document.createElement("tr");
-
       row.innerHTML = `
         <td>${name}</td>
         <td>${category}</td>
@@ -263,7 +247,6 @@
         <td><button class="edit-btn">Edit</button></td>
         <td><button class="delete-btn">Delete</button></td>
       `;
-
       tableBody.appendChild(row);
     }
 
@@ -276,7 +259,6 @@
         document.getElementById("category").value = cells[1].innerText;
         document.getElementById("quantity").value = cells[2].innerText;
         document.getElementById("location").value = cells[3].innerText;
-
         submitBtn.innerText = "✅ Update Inventory";
         submitBtn.classList.add("update-mode");
         editRow = row;
