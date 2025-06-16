@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mandya Campus Inventory System</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -21,7 +22,7 @@
       text-shadow: 1px 1px 2px gray;
     }
 
-    .form-box {
+    .form-box, .table-box {
       max-width: 850px;
       margin: auto;
       padding: 25px;
@@ -66,6 +67,7 @@
       font-size: 14px;
       border: 1px solid #ccc;
       border-radius: 6px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
     }
 
     button {
@@ -73,11 +75,63 @@
       color: white;
       font-weight: bold;
       border: none;
+      transition: background 0.3s;
       cursor: pointer;
     }
 
     button:hover {
       background: #004d40;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th {
+      background-color: #00695c;
+      color: white;
+      font-size: 16px;
+      padding: 12px;
+      text-align: left;
+    }
+
+    td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+    }
+
+    .edit-btn, .delete-btn {
+      padding: 6px 12px;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    .edit-btn {
+      background-color: #f57c00;
+      color: white;
+    }
+
+    .delete-btn {
+      background-color: #d32f2f;
+      color: white;
+    }
+
+    .update-mode {
+      background-color: #388e3c !important;
+    }
+
+    button[onclick*="downloadExcel"] {
+      margin-top: 15px;
+      background-color: #FF0000;
+    }
+
+    button[onclick*="downloadExcel"]:hover {
+      background-color: #cc0000;
     }
   </style>
 </head>
@@ -133,46 +187,105 @@
       <label>Location:</label>
       <input type="text" id="location" required />
 
-      <button type="submit">➕ Add to Inventory</button>
+      <button type="submit" id="submitBtn">➕ Add to Inventory</button>
     </form>
   </div>
 
-  <!-- Google Sheets Integration Script -->
+  <div class="table-box">
+    <table id="inventoryTable">
+      <thead>
+        <tr>
+          <th>Item Name</th>
+          <th>Category</th>
+          <th>Quantity</th>
+          <th>Location</th>
+          <th>Edit</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button onclick="downloadExcel()">⬇️ Download Excel</button>
+  </div>
+
   <script>
     const form = document.getElementById("inventoryForm");
+    const tableBody = document.querySelector("#inventoryTable tbody");
+    const submitBtn = document.getElementById("submitBtn");
 
-    form.addEventListener("submit", async function(e) {
+    let editRow = null;
+
+    form.addEventListener("submit", function(e) {
       e.preventDefault();
 
-      const itemName = document.getElementById("itemName").value;
+      const name = document.getElementById("itemName").value;
       const category = document.getElementById("category").value;
       const quantity = document.getElementById("quantity").value;
       const location = document.getElementById("location").value;
 
-      const data = {
-        itemName,
-        category,
-        quantity,
-        location
-      };
+      if (editRow) {
+        const cells = editRow.querySelectorAll("td");
+        cells[0].innerText = name;
+        cells[1].innerText = category;
+        cells[2].innerText = quantity;
+        cells[3].innerText = location;
+        submitBtn.innerText = "➕ Add to Inventory";
+        submitBtn.classList.remove("update-mode");
+        editRow = null;
+      } else {
+        addRow(name, category, quantity, location);
+      }
 
-      try {
-        await fetch("YOUR_GOOGLE_APPS_SCRIPT_URL_HERE", {
-          method: "POST",
-          mode: "no-cors",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data)
-        });
+      form.reset();
+    });
 
-        alert("✅ Inventory item submitted to Google Sheet!");
-        form.reset();
-      } catch (error) {
-        alert("❌ Error submitting to Google Sheet.");
-        console.error("Error:", error);
+    function addRow(name, category, quantity, location) {
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${name}</td>
+        <td>${category}</td>
+        <td>${quantity}</td>
+        <td>${location}</td>
+        <td><button class="edit-btn">Edit</button></td>
+        <td><button class="delete-btn">Delete</button></td>
+      `;
+
+      tableBody.appendChild(row);
+    }
+
+    tableBody.addEventListener("click", function(e) {
+      const row = e.target.closest("tr");
+
+      if (e.target.classList.contains("edit-btn")) {
+        const cells = row.querySelectorAll("td");
+        document.getElementById("itemName").value = cells[0].innerText;
+        document.getElementById("category").value = cells[1].innerText;
+        document.getElementById("quantity").value = cells[2].innerText;
+        document.getElementById("location").value = cells[3].innerText;
+
+        submitBtn.innerText = "✅ Update Inventory";
+        submitBtn.classList.add("update-mode");
+        editRow = row;
+      }
+
+      if (e.target.classList.contains("delete-btn")) {
+        row.remove();
+        if (editRow === row) {
+          form.reset();
+          submitBtn.innerText = "➕ Add to Inventory";
+          submitBtn.classList.remove("update-mode");
+          editRow = null;
+        }
       }
     });
+
+    function downloadExcel() {
+      const table = document.getElementById("inventoryTable");
+      const wb = XLSX.utils.table_to_book(table, {sheet: "Inventory"});
+      XLSX.writeFile(wb, "CampusInventory.xlsx");
+    }
   </script>
+
 </body>
 </html>
