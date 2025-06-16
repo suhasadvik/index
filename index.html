@@ -13,25 +13,18 @@
       background-size: cover;
     }
 
-    @keyframes slideFadeIn {
-      0% {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
     h1 {
       text-align: center;
       font-size: 36px;
       font-weight: bold;
-      color: #b71c1c; /* Opposite to green */
-      margin-bottom: 20px;
+      color: #b71c1c;
       text-shadow: 1px 1px 2px gray;
       animation: slideFadeIn 1.2s ease-out;
+    }
+
+    @keyframes slideFadeIn {
+      0% { opacity: 0; transform: translateY(-30px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
 
     .form-box, .table-box {
@@ -123,19 +116,9 @@
       font-weight: bold;
     }
 
-    .edit-btn {
-      background-color: #f57c00;
-      color: white;
-    }
-
-    .delete-btn {
-      background-color: #d32f2f;
-      color: white;
-    }
-
-    .update-mode {
-      background-color: #388e3c !important;
-    }
+    .edit-btn { background-color: #f57c00; color: white; }
+    .delete-btn { background-color: #d32f2f; color: white; }
+    .update-mode { background-color: #388e3c !important; }
 
     button[onclick*="downloadExcel"] {
       margin-top: 15px;
@@ -229,17 +212,19 @@
 
     let editRow = null;
 
-    form.addEventListener("submit", function(e) {
+    form.addEventListener("submit", async function(e) {
       e.preventDefault();
 
-      const name = document.getElementById("itemName").value;
+      const itemName = document.getElementById("itemName").value;
       const category = document.getElementById("category").value;
       const quantity = document.getElementById("quantity").value;
       const location = document.getElementById("location").value;
 
+      const data = { itemName, category, quantity, location };
+
       if (editRow) {
         const cells = editRow.querySelectorAll("td");
-        cells[0].innerText = name;
+        cells[0].innerText = itemName;
         cells[1].innerText = category;
         cells[2].innerText = quantity;
         cells[3].innerText = location;
@@ -247,10 +232,28 @@
         submitBtn.classList.remove("update-mode");
         editRow = null;
       } else {
-        addRow(name, category, quantity, location);
+        addRow(itemName, category, quantity, location);
       }
 
       form.reset();
+
+      try {
+        const response = await fetch("YOUR_WEB_APP_URL_HERE", {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+          }
+        });
+
+        const result = await response.text();
+        console.log(result);
+        alert("✅ Inventory saved to Google Sheet!");
+
+      } catch (error) {
+        alert("❌ Failed to connect to Google Sheet.");
+        console.error(error);
+      }
     });
 
     function addRow(name, category, quantity, location) {
