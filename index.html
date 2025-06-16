@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mandya Campus Inventory System</title>
+  <title>Inventory Management System</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     body {
@@ -13,13 +13,25 @@
       background-size: cover;
     }
 
+    @keyframes slideFadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     h1 {
       text-align: center;
       font-size: 36px;
       font-weight: bold;
-      color: #b71c1c;
+      color: #b71c1c; /* Opposite to green */
       margin-bottom: 20px;
       text-shadow: 1px 1px 2px gray;
+      animation: slideFadeIn 1.2s ease-out;
     }
 
     .form-box, .table-box {
@@ -175,7 +187,6 @@
           <option>Drama</option>
           <option>Shoe Stand & Racks</option>
           <option>Laundry Equipment</option>
-          <option>Sports Accessories</option>
           <option>R3</option>
           <option>IT Accessories</option>
         </optgroup>
@@ -203,7 +214,9 @@
           <th>Delete</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        <!-- Inventory rows here -->
+      </tbody>
     </table>
     <button onclick="downloadExcel()">⬇️ Download Excel</button>
   </div>
@@ -286,6 +299,5 @@
       XLSX.writeFile(wb, "CampusInventory.xlsx");
     }
   </script>
-
 </body>
 </html>
